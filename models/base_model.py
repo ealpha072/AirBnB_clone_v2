@@ -1,78 +1,78 @@
-#!/usr/bin/python3
-"""
-Custom base class for the entire project
-"""
-
-from uuid import uuid4
-from datetime import datetime
+#!/usr/bin/env python3
+import uuid
 import models
+from datetime import datetime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import String, Integer, Column, ForeignKey, DateTime
 
+"""Base model class"""
+
+
+Base = declarative_base()
 class BaseModel:
-    """Custom base for all the classes in the AirBnb console project
-
-    Arttributes:
-        id(str): handles unique user identity
-        created_at: assigns current datetime
-        updated_at: updates current datetime
-
-    Methods:
-        __str__: prints the class name, id, and creates dictionary
-        representations of the input values
-        save(self): updates instance arttributes with current datetime
-        to_dict(self): returns the dictionary values of the instance obj
-
-    """
+    """defines all common attributes/methods for other classes"""
+    #__tablename__ = 'base'
+    id = Column(String(60), nullable=False, primary_key=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
-        """Public instance artributes initialization
-        after creation
-
+        """Initialize Base Model class
         Args:
-            *args(args): arguments
-            **kwargs(dict): attrubute values
-
+            args(tuple): tuple argument. Won't be used here
+            kwargs(dict): object dictionary passed
+        Attributes:
+            id: unique number for identification
+            created_at: shows when the object was created
+            updated_at: shows when the object was last updated
+            storage
         """
-        DATE_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
-        if not kwargs:
-            self.id = str(uuid4())
-            self.created_at = datetime.utcnow()
-            self.updated_at = datetime.utcnow()
-            models.storage.new(self)
-        else:
+        if kwargs:
             for key, value in kwargs.items():
-                if key in ("updated_at", "created_at"):
-                    self.__dict__[key] = datetime.strptime(
-                        value, DATE_TIME_FORMAT)
-                elif key[0] == "id":
-                    self.__dict__[key] = str(value)
-                else:
-                    self.__dict__[key] = value
+                if key == "created_at" or key == "updated_at":
+                    value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+                if key != "__class__" and key != '_sa_instance_state':
+                    setattr(self, key, value)
+            if "id" not in kwargs:
+                self.id = str(uuid.uuid4())
+            if "created_at" not in kwargs:
+                self.created_at = datetime.now()
+            if "updated_at" not in kwargs:
+                self.updated_at = datetime.now()
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = self.updated_at = datetime.now()
+
 
     def __str__(self):
-        """
-        Returns string representation of the class
-        """
+        """returns string representation of an object"""
         return "[{}] ({}) {}".format(self.__class__.__name__,
                                      self.id, self.__dict__)
 
+    def __repr__(self):
+        """returns official string representation"""
+        return self.__str__()
+
     def save(self):
-        """
-        Updates the public instance attribute:
-        'updated_at' - with the current datetime
-        """
-        self.updated_at = datetime.utcnow()
+        """updates the object date"""
+        self.updated_at = datetime.now()
+        models.storage.new(self)
         models.storage.save()
 
     def to_dict(self):
-        """
-        Method returns a dictionary containing all 
-        keys/values of __dict__ instance
-        """
-        map_objects = {}
-        for key, value in self.__dict__.items():
-            if key == "created_at" or key == "updated_at":
-                map_objects[key] = value.isoformat()
+        """returns a dictionary containing all keys/values\
+                of __dict__ instance"""
+        objec = {}
+        for key in self.__dict__:
+            if key == 'created_at' or key == 'updated_at':
+                objec[key] = self.__dict__[key].isoformat()
             else:
-                map_objects[key] = value
-        map_objects["__class__"] = self.__class__.__name__
-        return map_objects
+                objec[key] = self.__dict__[key]
+        objec['__class__'] = self.__class__.__name__
+        if "_sa_instance_state" in objec:
+            del objec["_sa_instance_state"]
+        return objec
+
+    def delete(self):
+        """Returns current instance from the storage"""
+        models.storage.delete(self)

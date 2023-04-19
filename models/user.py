@@ -1,21 +1,20 @@
 #!/usr/bin/python3
-"""
-Defines the User class.
-"""
-from models.base_model import BaseModel
+from models.place import Place
+from models.base_model import BaseModel, Base
+from models.review import Review
+from sqlalchemy.orm import relationship
+from sqlalchemy import String, Column
+"""Inherits basemodel"""
 
 
-class User(BaseModel):
-    """Represent a User
-
-    Attributes:
-        email (str): user email
-        password (str): user password
-        first_name (str): first name
-        last_name (str): last name
-
-    """
-    email = ""
-    password = ""
-    first_name = ""
-    last_name = ""
+class User(BaseModel, Base):
+    """Implementation"""
+    __tablename__ = 'users'
+    email = Column(String(128), nullable=False)
+    password = Column(String(128), nullable=False)
+    first_name = Column(String(128), nullable=False)
+    last_name = Column(String(128), nullable=False)
+    places = relationship("Place", backref='user',
+                           cascade='all, delete-orphan')
+    reviews = relationship("Review", backref='user',
+                           cascade='all, delete-orphan')
