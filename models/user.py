@@ -1,20 +1,29 @@
 #!/usr/bin/python3
-from models.place import Place
+""" holds class User"""
+import models
 from models.base_model import BaseModel, Base
-from models.review import Review
+from os import getenv
+import sqlalchemy
+from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
-from sqlalchemy import String, Column
-"""Inherits basemodel"""
 
 
 class User(BaseModel, Base):
-    """Implementation"""
-    __tablename__ = 'users'
-    email = Column(String(128), nullable=False)
-    password = Column(String(128), nullable=False)
-    first_name = Column(String(128), nullable=False)
-    last_name = Column(String(128), nullable=False)
-    places = relationship("Place", backref='user',
-                           cascade='all, delete-orphan')
-    reviews = relationship("Review", backref='user',
-                           cascade='all, delete-orphan')
+    """Representation of a user """
+    if models.storage_t == 'db':
+        __tablename__ = 'users'
+        email = Column(String(128), nullable=False)
+        password = Column(String(128), nullable=False)
+        first_name = Column(String(128), nullable=True)
+        last_name = Column(String(128), nullable=True)
+        places = relationship("Place", backref="user")
+        reviews = relationship("Review", backref="user")
+    else:
+        email = ""
+        password = ""
+        first_name = ""
+        last_name = ""
+
+    def __init__(self, *args, **kwargs):
+        """initializes user"""
+        super().__init__(*args, **kwargs)

@@ -1,20 +1,21 @@
-#!/usr/bin/python3
-"""
-Defines amenities
-"""
-import os
+#!/usr/bin/python
+""" holds class Amenity"""
+import models
 from models.base_model import BaseModel, Base
-from sqlalchemy.orm import relationship
+from os import getenv
+import sqlalchemy
 from sqlalchemy import Column, String
-from models.place import place_amenity
+from sqlalchemy.orm import relationship
 
 
 class Amenity(BaseModel, Base):
-    """Defines amenities that user can choose from to offer at its place"""
-    __tablename__ = "amenities"
-    if os.getenv("HBNB_TYPE_STORAGE") == "db":
+    """Representation of Amenity """
+    if models.storage_t == 'db':
+        __tablename__ = 'amenities'
         name = Column(String(128), nullable=False)
-        place_amenities = relationship("Place", secondary=place_amenity,
-                                       back_populates='amenities')
     else:
-        name=''
+        name = ""
+
+    def __init__(self, *args, **kwargs):
+        """initializes Amenity"""
+        super().__init__(*args, **kwargs)

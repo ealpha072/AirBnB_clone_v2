@@ -1,23 +1,26 @@
- .container section.filters{
+.filters {
     background-color: white;
     height: 70px;
     width: 100%;
-    border: solid 1px #DDDDDD;
+    border: 1px solid #DDDDDD;
     border-radius: 4px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
 }
-.container section.filters button{
+
+section.filters button{
     font-size: 18px;
-    background-color: #ff5a5f;
-    color: #ffffff;
+    color: white;
+    background-color: #FF5A5F;
     height: 48px;
-    width: 20%;
-    border: none;
+    border: 0px;
     border-radius: 4px;
+    width: 20%;
     margin-right: 30px;
+    opacity: 1;
 }
-.container section.filters button:hover{
-    opacity: 90%;
+
+section.filters button:hover {
+    opacity: 0.9;
 }
